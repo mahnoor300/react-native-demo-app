@@ -30,10 +30,9 @@ jobs:
         run: chmod +x ./android/gradlew
 
       # Run the build process
+
       - name: Build debug APK
-        run: |
-          cd android && ./gradlew clean
-          cd android && ./gradlew assembleDebug --stacktrace  # Rebuild the APK
+        run: bash ./gradlew assembleDebug --stacktrace
 
       # Rename APK for output
       - name: Rename APK 
