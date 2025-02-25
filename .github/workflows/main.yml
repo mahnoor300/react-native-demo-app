@@ -17,9 +17,10 @@ jobs:
         with:
           node-version: '18'  # Ensure Node.js 18 or higher
 
-      - name: Set up Yarn (version 3.6.4)
+      - name: Install Yarn (using self-installation for Yarn 3.x)
         run: |
-          npm install -g yarn@3.6.4  # Install specific Yarn version
+          corepack enable
+          corepack prepare yarn@stable --activate  # This automatically installs the latest stable Yarn (Berry)
 
       - name: Cache Yarn dependencies
         uses: actions/cache@v2
@@ -60,9 +61,10 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Set up Yarn (version 3.6.4)
+      - name: Install Yarn (using self-installation for Yarn 3.x)
         run: |
-          npm install -g yarn@3.6.4
+          corepack enable
+          corepack prepare yarn@stable --activate  # This automatically installs the latest stable Yarn (Berry)
 
       - name: Install dependencies with Yarn
         run: yarn install --frozen-lockfile
