@@ -12,6 +12,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Check root directory structure
+        run: |
+          echo "Root directory structure"
+          ls -l  # List files and directories in the root folder
+
       - name: Set up Node.js (version 18)
         uses: actions/setup-node@v3
         with:
@@ -69,6 +74,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Check root directory structure
+        run: |
+          echo "Root directory structure"
+          ls -l  # List files and directories in the root folder
+
       - name: Set up Node.js (version 18)
         uses: actions/setup-node@v3
         with:
@@ -110,18 +120,15 @@ jobs:
           echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
 
-      - name: Check directory structure
-        run: |
-          echo "Checking directory structure"
-          ls -R
-
       - name: Grant execute permissions to gradlew
-        run: chmod +x android/gradlew  # Grant execute permission to gradlew script
+        run: chmod +x ./android/gradlew  # Explicitly set the relative path to android/gradlew
+        working-directory: ./  # Ensure this runs from the root of the repo
 
       - name: Build APK
         run: |
-          cd android && ./gradlew clean
-          cd android && ./gradlew assembleRelease  # Build the APK
+          ./android/gradlew clean
+          ./android/gradlew assembleRelease  # Build the APK
+        working-directory: ./  # Ensure this step also runs from the root of the repo
 
       - name: Upload APK to GitHub artifacts
         uses: actions/upload-artifact@v4
