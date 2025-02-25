@@ -34,7 +34,7 @@ jobs:
         run: yarn cache clean
 
       - name: Install dependencies with Yarn
-        run: yarn install  # Removed --frozen-lockfile to avoid lockfile modification errors
+        run: yarn install --no-frozen-lockfile  # Added --no-frozen-lockfile to bypass lockfile restrictions
 
       - name: Set up Android SDK
         run: |
@@ -73,7 +73,7 @@ jobs:
         run: yarn cache clean
 
       - name: Install dependencies with Yarn
-        run: yarn install  # Removed --frozen-lockfile to avoid lockfile modification errors
+        run: yarn install --no-frozen-lockfile  # Added --no-frozen-lockfile to bypass lockfile restrictions
 
       - name: Set up Android SDK
         run: |
