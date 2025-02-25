@@ -10,39 +10,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js (version 18)
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install Yarn (Version 3.6.4)
-        run: |
-          corepack enable
-          corepack prepare yarn@3.6.4 --activate
-      - name: Install dependencies with Yarn
-        run: yarn install --no-frozen-lockfile
-
+      - uses: actions/checkout@v1
+      
+      # Set up JDK 17 (to match Android Gradle plugin requirement)
       - name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
           java-version: '17'
 
-      - name: Verify Gradle wrapper exists and is executable
+      # Clean the project (remove node_modules and android/build)
+      - name: Clean project
         run: |
-          ls -l ./android/gradlew  # Verify that gradlew exists in the android folder
-          chmod +x ./android/gradlew  # Ensure gradlew is executable
+          rm -rf node_modules
+          rm -rf android/build
+          yarn install --no-frozen-lockfile  # Reinstall dependencies
 
+      # Run the build process
       - name: Build debug APK
         run: |
-          cd android && ./gradlew assembleDebug --stacktrace  # Ensure you're in the android directory
+          cd android && ./gradlew clean
+          cd android && ./gradlew assembleDebug --stacktrace  # Rebuild the APK
 
-      - name: Rename APK
+      # Rename APK for output
+      - name: Rename APK 
         run:
           mv "./app/build/outputs/apk/debug/app-debug.apk" "./app/build/outputs/apk/debug/${{ env.OUTPUT_NAME }}.apk"
-
+        
+      # Upload the APK as an artifact
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
