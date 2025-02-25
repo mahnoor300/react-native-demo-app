@@ -10,7 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js (version 18)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Yarn (Version 3.6.4)
+        run: |
+          corepack enable
+          corepack prepare yarn@3.6.4 --activate
+      - name: Install dependencies with Yarn
+        run: yarn install --no-frozen-lockfile
+
+      - name: Set up Android SDK
+        run: |
+          sudo apt install -y wget unzip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          cd $HOME/android-sdk/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+          unzip commandlinetools-linux-8512546_latest.zip
+          rm commandlinetools-linux-8512546_latest.zip
+          mv cmdline-tools latest
+          
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+          
+          echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_EN
 
       - name: Set up JDK 11
         uses: actions/setup-java@v1
