@@ -110,8 +110,8 @@ jobs:
 
       - name: Build APK
         run: |
-          cd android && ./gradlew clean
-          cd android && ./gradlew assembleRelease  # Build the APK
+          cd ./android && ./gradlew clean
+          cd ./android && ./gradlew assembleRelease  # Build the APK
         
 
    #   - name: Clean Gradle cache and build
