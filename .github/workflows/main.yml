@@ -61,9 +61,6 @@ jobs:
           echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
 
-      - name: Link Native Modules (if necessary)
-        run: npx react-native link  # Link native modules (if necessary)
-
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest  # Use Ubuntu to build Android
@@ -112,9 +109,6 @@ jobs:
           # Add Android SDK to PATH
           echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
-
-      - name: Link Native Modules (if necessary)
-        run: npx react-native link
 
       - name: Build APK
         run: |
