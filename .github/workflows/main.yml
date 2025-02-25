@@ -6,69 +6,7 @@ on:
 jobs:
   setup-environment:
     name: Set up Node.js, Yarn, and Android Studio
-    runs-on: ubuntu-latest  # Use Ubuntu to set up environment
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Check root directory structure
-        run: |
-          echo "Root directory structure"
-          ls -l  # List files and directories in the root folder
-
-      - name: Set up Node.js (version 18)
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'  # Ensure Node.js 18 or higher
-
-      - name: Install Yarn (Version 3.6.4)
-        run: |
-          corepack enable
-          corepack prepare yarn@3.6.4 --activate  # Ensure Yarn 3.6.4 is used
-
-      - name: Cache Yarn dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.yarn/cache
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install dependencies with Yarn
-        run: yarn install --no-frozen-lockfile  # Prevents modifications to yarn.lock
-
-      - name: Set up Android SDK
-        run: |
-          sudo apt update
-          sudo apt install -y openjdk-11-jdk
-          sudo apt install -y wget unzip
-
-          # Create the necessary directories
-          mkdir -p $HOME/android-sdk/cmdline-tools
-
-          # Download Android SDK Command Line Tools
-          cd $HOME/android-sdk/cmdline-tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-
-          # Unzip the tools into the cmdline-tools directory
-          unzip commandlinetools-linux-8512546_latest.zip
-          rm commandlinetools-linux-8512546_latest.zip
-
-          # Create a new directory for the tools (this is the required structure for SDK Manager)
-          mv cmdline-tools latest
-
-          # Install Android SDK platform-tools, platforms, and build-tools
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
-
-          # Add Android SDK to PATH
-          echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
-
-  build-android:
-    name: Build Android APK
-    runs-on: ubuntu-latest  # Use Ubuntu to build Android
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -87,10 +25,18 @@ jobs:
       - name: Install Yarn (Version 3.6.4)
         run: |
           corepack enable
-          corepack prepare yarn@3.6.4 --activate  # Ensure Yarn 3.6.4 is used
+          corepack prepare yarn@3.6.4 --activate
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.yarn/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
       - name: Install dependencies with Yarn
-        run: yarn install --no-frozen-lockfile  # Prevents modifications to yarn.lock
+        run: yarn install --no-frozen-lockfile
 
       - name: Set up Android SDK
         run: |
@@ -98,37 +44,79 @@ jobs:
           sudo apt install -y openjdk-11-jdk
           sudo apt install -y wget unzip
 
-          # Create the necessary directories
           mkdir -p $HOME/android-sdk/cmdline-tools
-
-          # Download Android SDK Command Line Tools
           cd $HOME/android-sdk/cmdline-tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-
-          # Unzip the tools into the cmdline-tools directory
           unzip commandlinetools-linux-8512546_latest.zip
           rm commandlinetools-linux-8512546_latest.zip
-
-          # Create a new directory for the tools (this is the required structure for SDK Manager)
           mv cmdline-tools latest
 
-          # Install Android SDK platform-tools, platforms, and build-tools
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
 
-          # Add Android SDK to PATH
+          echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
+
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check root directory structure
+        run: |
+          echo "Root directory structure"
+          ls -l  # List files and directories in the root folder
+
+      - name: Set up Node.js (version 18)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Yarn (Version 3.6.4)
+        run: |
+          corepack enable
+          corepack prepare yarn@3.6.4 --activate
+
+      - name: Install dependencies with Yarn
+        run: yarn install --no-frozen-lockfile
+
+      - name: Set up Android SDK
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-11-jdk
+          sudo apt install -y wget unzip
+
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          cd $HOME/android-sdk/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+          unzip commandlinetools-linux-8512546_latest.zip
+          rm commandlinetools-linux-8512546_latest.zip
+          mv cmdline-tools latest
+
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+
           echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
 
       - name: Grant execute permissions to gradlew
-        run: chmod +x ./android/gradlew  # Explicitly set the relative path to android/gradlew
+        run: chmod +x ./android/gradlew
         working-directory: ./  # Ensure this runs from the root of the repo
 
-      - name: Build APK
+      - name: Verify gradlew permissions
         run: |
-          ./android/gradlew clean
-          ./android/gradlew assembleRelease  # Build the APK
-        working-directory: ./  # Ensure this step also runs from the root of the repo
+          ls -l ./android/gradlew  # Ensure the gradlew file is executable
+        working-directory: ./  # Ensure this runs from the root of the repo
+
+      - name: Run Gradle build
+        run: |
+          cd ./android  # Change directory to the android folder
+          ./gradlew clean --stacktrace
+          ./gradlew assembleRelease --stacktrace
+        working-directory: ./  # Ensure this runs from the root of the repo
 
       - name: Upload APK to GitHub artifacts
         uses: actions/upload-artifact@v4
