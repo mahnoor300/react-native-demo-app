@@ -110,6 +110,9 @@ jobs:
           echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
 
+      - name: Grant execute permissions to gradlew
+        run: chmod +x android/gradlew  # Grant execute permission to gradlew script
+
       - name: Build APK
         run: |
           cd android && ./gradlew clean
