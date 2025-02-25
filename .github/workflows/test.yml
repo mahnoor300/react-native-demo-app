@@ -26,7 +26,7 @@ jobs:
           mv "./app/build/outputs/apk/debug/app-debug.apk" "./app/build/outputs/apk/debug/${{ env.OUTPUT_NAME }}.apk"
         
       - name: Upload debug APK
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.OUTPUT_NAME }}
           path: app/build/outputs/apk/debug/${{ env.OUTPUT_NAME }}.apk
