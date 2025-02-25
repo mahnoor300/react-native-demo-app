@@ -23,8 +23,6 @@ jobs:
             npm install --legacy-peer-deps
             cd android && chmod +x gradlew && ./gradlew clean  # Add chmod +x here to give execute permission to gradlew
       
-      - name: Clean Gradle Cache
-        run: ./gradlew cleanBuildCache
 
 
       - name: Build APK
