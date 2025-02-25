@@ -36,7 +36,7 @@ jobs:
           ./gradlew clean
 
       - name: Build debug APK
-        run: bash ./android/gradlew assembleDebug --stacktrace
+        run: cd android && ./gradlew assembleDebug --stacktrace 
 
       # Rename APK for output
       - name: Rename APK 
