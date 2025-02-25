@@ -1,10 +1,58 @@
-
 name: React Native CI/CD
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - master  # Trigger on push to master
+  pull_request:
+    branches:
+      - master  # Trigger on PR to master
+
 jobs:
-  android:
+  setup-environment:
+    name: Set up Node.js, Yarn, and Android Studio
+    runs-on: ubuntu-latest  # Use Ubuntu to set up environment
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js (version 18)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  # Ensure Node.js 18 or higher
+
+      - name: Set up Yarn (version 3.6.4)
+        run: |
+          npm install -g yarn@3.6.4  # Install specific Yarn version
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.yarn/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies with Yarn
+        run: yarn install --frozen-lockfile  # Install dependencies using Yarn
+
+      - name: Set up Android SDK
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-11-jdk
+          sudo apt install -y android-sdk
+          echo "yarn" > android/gradle/wrapper/gradle-wrapper.properties  # To fix build issues related to Gradle versions
+
+      - name: Install Android Build Tools and SDK (Required for React Native)
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+
+      - name: Link Native Modules (if necessary)
+        run: npx react-native link  # Link native modules (if necessary)
+
+  build-android:
     name: Build Android APK
     runs-on: ubuntu-latest  # Use Ubuntu to build Android
 
@@ -12,25 +60,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: Set up Node.js (version 18)
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Update to Node.js version 18 or higher
+          node-version: '18'
 
-
-      - name: Install dependencies
+      - name: Set up Yarn (version 3.6.4)
         run: |
-            npm install --legacy-peer-deps
-            cd android && chmod +x gradlew && ./gradlew clean  # Add chmod +x here to give execute permission to gradlew
-      
+          npm install -g yarn@3.6.4
 
+      - name: Install dependencies with Yarn
+        run: yarn install --frozen-lockfile
+
+      - name: Set up Android SDK
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-11-jdk
+          sudo apt install -y android-sdk
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+
+      - name: Link Native Modules (if necessary)
+        run: npx react-native link
 
       - name: Build APK
         run: |
-          cd android && ./gradlew assembleRelease
+          cd android && ./gradlew clean
+          cd android && ./gradlew assembleRelease  # Build the APK
 
       - name: Upload APK to GitHub artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v2
         with:
           name: android-release-apk
           path: android/app/build/outputs/apk/release/app-release.apk
+
