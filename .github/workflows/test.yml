@@ -29,6 +29,11 @@ jobs:
         run: chmod +x ./android/gradlew
 
       # Run the build process
+      - name: Navigate to Android directory and clean build
+        run: |
+          cd ./android
+          ls -l  # Check if gradlew is in the correct directory
+          ./gradlew clean
 
       - name: Build debug APK
         run: bash ./gradlew assembleDebug --stacktrace
