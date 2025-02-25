@@ -30,8 +30,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      - name: Clear Yarn cache (to ensure a clean install)
+        run: yarn cache clean
+
       - name: Install dependencies with Yarn
-        run: yarn install  # Removed --frozen-lockfile
+        run: yarn install  # Removed --frozen-lockfile to avoid lockfile modification errors
 
       - name: Set up Android SDK
         run: |
@@ -66,8 +69,11 @@ jobs:
           corepack enable
           corepack prepare yarn@stable --activate  # This automatically installs the latest stable Yarn (Berry)
 
+      - name: Clear Yarn cache (to ensure a clean install)
+        run: yarn cache clean
+
       - name: Install dependencies with Yarn
-        run: yarn install  # Removed --frozen-lockfile
+        run: yarn install  # Removed --frozen-lockfile to avoid lockfile modification errors
 
       - name: Set up Android SDK
         run: |
