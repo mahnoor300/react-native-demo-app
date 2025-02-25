@@ -107,13 +107,20 @@ jobs:
           ls -l ./android/gradlew  # Ensure the gradlew file is executable
         working-directory: ./  # Ensure this runs from the root of the repo
 
-      - name: Clean Gradle cache and build
+
+      - name: Build APK
         run: |
-          cd ./android  # Change directory to the android folder
-          ./gradlew clean --stacktrace
-          ./gradlew generateAutolinkingPackageList --stacktrace  # Ensure autolinking is generated
-          ./gradlew assembleRelease --stacktrace
-        working-directory: ./  # Ensure this runs from the root of the repo
+          cd android && ./gradlew clean
+          cd android && ./gradlew assembleRelease  # Build the APK
+        
+
+   #   - name: Clean Gradle cache and build
+    #    run: |
+     #     cd ./android  # Change directory to the android folder
+      #    ./gradlew clean --stacktrace
+       #   ./gradlew generateAutolinkingPackageList --stacktrace  # Ensure autolinking is generated
+        #  ./gradlew assembleRelease --stacktrace
+        #working-directory: ./  # Ensure this runs from the root of the repo
 
       - name: Upload APK to GitHub artifacts
         uses: actions/upload-artifact@v4
