@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      
+
       # Set up JDK 17 (to match Android Gradle plugin requirement)
       - name: Set up JDK 17
         uses: actions/setup-java@v1
@@ -24,6 +24,10 @@ jobs:
           rm -rf node_modules
           rm -rf android/build
           yarn install --no-frozen-lockfile  # Reinstall dependencies
+
+      # Grant execute permissions to gradlew
+      - name: Grant execute permissions to gradlew
+        run: chmod +x ./android/gradlew
 
       # Run the build process
       - name: Build debug APK
