@@ -12,11 +12,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Check root directory structure
-        run: |
-          echo "Root directory structure"
-          ls -l  # List files and directories in the root folder
-
       - name: Set up Node.js (version 18)
         uses: actions/setup-node@v3
         with:
@@ -38,22 +33,25 @@ jobs:
       - name: Install dependencies with Yarn
         run: yarn install --no-frozen-lockfile
 
-      - name: Set up Android SDK
+      - name: Install OpenJDK 11 (and verify installation)
         run: |
           sudo apt update
           sudo apt install -y openjdk-11-jdk
-          sudo apt install -y wget unzip
+          java -version  # Check Java version to verify correct installation
 
+      - name: Set up Android SDK
+        run: |
+          sudo apt install -y wget unzip
           mkdir -p $HOME/android-sdk/cmdline-tools
           cd $HOME/android-sdk/cmdline-tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
           unzip commandlinetools-linux-8512546_latest.zip
           rm commandlinetools-linux-8512546_latest.zip
           mv cmdline-tools latest
-
+          
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
-
+          
           echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
 
@@ -64,11 +62,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Check root directory structure
-        run: |
-          echo "Root directory structure"
-          ls -l  # List files and directories in the root folder
 
       - name: Set up Node.js (version 18)
         uses: actions/setup-node@v3
@@ -83,22 +76,25 @@ jobs:
       - name: Install dependencies with Yarn
         run: yarn install --no-frozen-lockfile
 
-      - name: Set up Android SDK
+      - name: Install OpenJDK 11 (and verify installation)
         run: |
           sudo apt update
           sudo apt install -y openjdk-11-jdk
-          sudo apt install -y wget unzip
+          java -version  # Check Java version to verify correct installation
 
+      - name: Set up Android SDK
+        run: |
+          sudo apt install -y wget unzip
           mkdir -p $HOME/android-sdk/cmdline-tools
           cd $HOME/android-sdk/cmdline-tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
           unzip commandlinetools-linux-8512546_latest.zip
           rm commandlinetools-linux-8512546_latest.zip
           mv cmdline-tools latest
-
+          
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
-
+          
           echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
 
@@ -111,10 +107,11 @@ jobs:
           ls -l ./android/gradlew  # Ensure the gradlew file is executable
         working-directory: ./  # Ensure this runs from the root of the repo
 
-      - name: Run Gradle build
+      - name: Clean Gradle cache and build
         run: |
           cd ./android  # Change directory to the android folder
           ./gradlew clean --stacktrace
+          ./gradlew generateAutolinkingPackageList --stacktrace  # Ensure autolinking is generated
           ./gradlew assembleRelease --stacktrace
         working-directory: ./  # Ensure this runs from the root of the repo
 
