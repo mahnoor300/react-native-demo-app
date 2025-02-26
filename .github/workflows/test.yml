@@ -19,21 +19,35 @@ jobs:
           java-version: '17'
 
       # Clean the project (remove node_modules and android/build)
-      - name: Clean project
+      - name: Clean project and install dependencies
         run: |
           rm -rf node_modules
           rm -rf android/build
           yarn install --no-frozen-lockfile  # Reinstall dependencies
-      # Grant execute permissions to gradlew
-      - name: Grant execute permissions to gradlew
-        run: chmod +x ./android/gradlew
 
-        # Manually regenerate autolinking files if necessary
-      - name: Regenerate autolinking files
+      # Set up Android SDK
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          sdk-version: '30.0.3'
+          build-tools-version: '30.0.3'
+          target-sdk-version: '30'
+
+      # Clean Gradle cache
+      - name: Clean Gradle cache
+        run: |
+          cd android
+          ./gradlew cleanBuildCache
+          ./gradlew clean
+
+      # Sync Gradle and regenerate autolinking files
+      - name: Sync Gradle and regenerate autolinking files
         run: |
           cd android
           ./gradlew clean
-          ./gradlew :app:generateAutolinkingPackageList
+          ./gradlew :app:generateAutolinkingPackageList --stacktrace
+
+      # Build debug APK
       - name: Build debug APK
         run: cd android && ./gradlew assembleDebug --stacktrace 
 
