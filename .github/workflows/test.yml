@@ -37,11 +37,10 @@ jobs:
       - name: Grant execute permissions to gradlew
         run: chmod +x ./android/gradlew
 
-      # Clean Gradle cache
-      - name: Clean Gradle cache
+      # Clean Gradle build
+      - name: Clean Gradle build
         run: |
           cd android
-          ./gradlew cleanBuildCache
           ./gradlew clean
 
       # Sync Gradle and regenerate autolinking files
